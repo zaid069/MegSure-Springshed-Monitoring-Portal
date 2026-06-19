@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MegSure — Springshed Monitoring Portal</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!------------ HEADER ------------->
+    <header class="site-header">
+        <div class="header-brand">
+            <div class="header-logo">MS</div>
+            <div class="header-text">
+                <h1 class="header-title">MegSure — Springshed Monitoring Portal</h1>
+                <p class="header-subtitle">NMHS 2024-25 Medium Grant | MBDA × IORA</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <span class="live-indicator">
+                <span class="live-dot"></span>
+                Live
+            </span>
+            <span class="sync-status">Last sync: <strong>2 min ago</strong></span>
+        </div>
+    </header>
+
+
+    <!------------- KPI SUMMARY STRIP --------------->
+    <section class="kpi-strip">
+        <div class="kpi-card">
+            <span class="kpi-label">Total Springs</span>
+            <span class="kpi-value">347</span>
+            <span class="kpi-sub">Across 4 blocks · 40 villages</span>
+        </div>
+        <div class="kpi-card kpi-card--alert">
+            <span class="kpi-label">Critical + Dependent</span>
+            <span class="kpi-value kpi-value--red">82</span>
+            <span class="kpi-sub">↑ 6 from last cycle</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Pilot Sites</span>
+            <span class="kpi-value">12 / 50</span>
+            <span class="kpi-sub">24% commissioned</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Avg Discharge</span>
+            <span class="kpi-value kpi-value--blue">8.4 <small>LPM</small></span>
+            <span class="kpi-sub">+12% post-intervention</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Active Sensors</span>
+            <span class="kpi-value kpi-value--green">38 / 42</span>
+            <span class="kpi-sub">4 offline</span>
+        </div>
+    </section>
+
+
+    <!---------------- MAIN 3-COLUMN LAYOUT ------------->
+    <div class="main-layout">
+
+
+        <!-- ── COLUMN 1 : Left Sidebar — Map Layers card ── -->
+        <aside class="sidebar">
+            <div class="card map-layers-card">
+
+                <div class="card-header card-header--dark">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12,2 2,7 12,12 22,7" />
+                        <polyline points="2,17 12,22 22,17" />
+                        <polyline points="2,12 12,17 22,12" />
+                    </svg>
+                    <span class="card-title">Map Layers</span>
+                </div>
+
+                <div class="layers-body">
+
+                    <!-- Spring Data -->
+                    <div class="layer-group">
+                        <p class="layer-group-title">Spring Data</p>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-critical" checked />
+                            <span class="layer-swatch" style="background:#e74c3c;"></span>
+                            <span class="layer-name">Critical Springs</span>
+                            <span class="layer-count">29</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-drying" checked />
+                            <span class="layer-swatch" style="background:#e67e22;"></span>
+                            <span class="layer-name">Drying Springs</span>
+                            <span class="layer-count">42</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-working" checked />
+                            <span class="layer-swatch" style="background:#27ae60;"></span>
+                            <span class="layer-name">Working Springs</span>
+                            <span class="layer-count">276</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-phe" checked />
+                            <span class="layer-swatch" style="background:#7f8c8d;"></span>
+                            <span class="layer-name">PHE Critical List</span>
+                            <span class="layer-count">250</span>
+                        </label>
+                    </div>
+
+                    <!-- Spatial Overlays -->
+                    <div class="layer-group">
+                        <p class="layer-group-title">Spatial Overlays</p>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-block" checked />
+                            <span class="layer-swatch" style="background:#2980b9;"></span>
+                            <span class="layer-name">Block Boundaries</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-pilot" checked />
+                            <span class="layer-swatch" style="background:#1a6b3a;"></span>
+                            <span class="layer-name">Pilot Sites</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-springshed" />
+                            <span class="layer-swatch" style="background:#8e44ad;"></span>
+                            <span class="layer-name">Springsheds</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-recharge" />
+                            <span class="layer-swatch" style="background:#16a085;"></span>
+                            <span class="layer-name">Recharge Zones</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-ahp" />
+                            <span class="layer-swatch" style="background:#d35400;"></span>
+                            <span class="layer-name">AHP Vulnerability</span>
+                        </label>
+                    </div>
+
+                    <!-- Base Data -->
+                    <div class="layer-group">
+                        <p class="layer-group-title">Base Data</p>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-lulc" />
+                            <span class="layer-swatch" style="background:#2471a3;"></span>
+                            <span class="layer-name">LULC (Sentinel-2)</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-forest" />
+                            <span class="layer-swatch" style="background:#1e8449;"></span>
+                            <span class="layer-name">Forest Cover (ISFR)</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-geology" />
+                            <span class="layer-swatch" style="background:#922b21;"></span>
+                            <span class="layer-name">Geology (GSI)</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-dem" />
+                            <span class="layer-swatch" style="background:#1a5276;"></span>
+                            <span class="layer-name">DEM / Slope</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-drainage" />
+                            <span class="layer-swatch" style="background:#1565c0;"></span>
+                            <span class="layer-name">Drainage Network</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-rainfall" />
+                            <span class="layer-swatch" style="background:#0277bd;"></span>
+                            <span class="layer-name">Rainfall (CHIRPS)</span>
+                        </label>
+                    </div>
+
+                    <!-- Agroforestry -->
+                    <div class="layer-group">
+                        <p class="layer-group-title">Agroforestry</p>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-plantation" />
+                            <span class="layer-swatch" style="background:#27ae60;"></span>
+                            <span class="layer-name">Plantation Sites</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-survival" />
+                            <span class="layer-swatch" style="background:#2ecc71;"></span>
+                            <span class="layer-name">Survival Index</span>
+                        </label>
+                        <label class="layer-row">
+                            <input type="checkbox" id="chk-species" />
+                            <span class="layer-swatch" style="background:#52be80;"></span>
+                            <span class="layer-name">Species Composition</span>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+
+
+        <!-- ── COLUMN 2 : Map ── -->
+        <div class="map-area">
+            <div class="card map-card">
+
+                <div class="card-header map-toolbar">
+                    <button class="map-tab map-tab--active" id="tab-map">Map</button>
+                    <button class="map-tab" id="tab-satellite">Satellite</button>
+                    <button class="map-tab" id="tab-terrain">Terrain</button>
+                    <div class="map-zoom-controls">
+                        <button class="zoom-btn" id="btn-zoom-in" title="Zoom in">+</button>
+                        <button class="zoom-btn" id="btn-zoom-out" title="Zoom out">−</button>
+                    </div>
+                </div>
+
+                <div id="map"></div>
+
+            </div>
+        </div>
+
+
+        <!-- ── COLUMN 3 : Right Panel ── -->
+        <aside class="right-panel">
+
+            <!-- Selected Spring detail -->
+            <div class="card spring-detail-card">
+                <div class="card-header card-header--dark">
+                    <span class="card-title">Selected Spring</span>
+                </div>
+                <div class="spring-body">
+                    <h2 class="spring-name">Mawphlang Sp-01</h2>
+                    <p class="spring-location">Mawphlang · Mawkynrew · East Khasi Hills</p>
+                    <span class="status-badge status-badge--critical">CRITICAL</span>
+
+                    <!-- Discharge box with sparkline -->
+                    <div class="discharge-box">
+                        <p class="discharge-label">Current Discharge</p>
+                        <div class="discharge-value">
+                            3.5
+                            <small class="discharge-unit">LPM</small>
+                            <span class="discharge-delta discharge-delta--up">↑ 9.7%</span>
+                        </div>
+                        <canvas id="sparkline" height="44"></canvas>
+                    </div>
+
+                    <!-- Metrics grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-cell">
+                            <span class="metric-label">PH</span>
+                            <span class="metric-value">6.3</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">TDS</span>
+                            <span class="metric-value">152 <small>ppm</small></span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">EC</span>
+                            <span class="metric-value">373 <small>µS/cm</small></span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Turbidity</span>
+                            <span class="metric-value">2.7 <small>NTU</small></span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Households</span>
+                            <span class="metric-value">25</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">AHP Score</span>
+                            <span class="metric-value">7.9 / 9</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Rock Type</span>
+                            <span class="metric-value">Gneiss</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Spring Type</span>
+                            <span class="metric-value">Fracture</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Last Visit</span>
+                            <span class="metric-value">15 May 2026</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Top 50?</span>
+                            <span class="metric-value">No</span>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="action-row">
+                        <button class="action-btn" id="btn-photos">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21,15 16,10 5,21" />
+                            </svg>
+                            47 Photos
+                        </button>
+                        <button class="action-btn" id="btn-dpr">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14,2 14,8 20,8" />
+                            </svg>
+                            View DPR
+                        </button>
+                        <button class="action-btn" id="btn-export">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7,10 12,15 17,10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+
+
+    <!-------- ANALYTICS CHARTS ROW --------->
+    <section class="charts-row">
+
+        <div class="card chart-card">
+            <div class="card-header">
+                <span class="card-title">Discharge Trend (4 Cycles)</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-discharge-trend"></canvas>
+            </div>
+            <div class="chart-legend">
+                <span class="legend-line legend-line--green"></span> Observed (LPM)
+                <span class="legend-line legend-line--dashed"></span> Target
+                <span class="legend-line legend-line--blue"></span> Post-Intervention (Pilot)
+            </div>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-header">
+                <span class="card-title">Block-wise Distribution</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="chart-block-dist"></canvas>
+            </div>
+            <div class="chart-legend">
+                <span class="legend-swatch legend-swatch--green"></span> Working
+                <span class="legend-swatch legend-swatch--amber"></span> Drying
+                <span class="legend-swatch legend-swatch--red"></span> Critical
+            </div>
+        </div>
+
+        <!-- Alerts & Activity -->
+        <div class="card alerts-card--bottom">
+            <div class="card-header">
+                <span class="card-title">Alerts &amp; Activity</span>
+                <span class="alerts-badge">6</span>
+            </div>
+
+            <div class="alert-list">
+
+                <div class="alert-item alert-item--offline">
+                    <div class="alert-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-title">Sensor offline — Rongchekre Sp-03</p>
+                        <p class="alert-meta">2 hr ago · Baghmara · Charles</p>
+                    </div>
+                </div>
+
+                <div class="alert-item alert-item--drop">
+                    <div class="alert-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" />
+                            <polyline points="17,6 23,6 23,12" />
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-title">Discharge dropped 22% — Jadi Gittim Sp-01</p>
+                        <p class="alert-meta">5 hr ago · Baghmara · COAL INDIA risk</p>
+                    </div>
+                </div>
+
+                <div class="alert-item alert-item--info">
+                    <div class="alert-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14,2 14,8 20,8" />
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-title">12 new HHS uploaded</p>
+                        <p class="alert-meta">Today · Mawkynrew · Easterlily</p>
+                    </div>
+                </div>
+
+                <div class="alert-item alert-item--photo">
+                    <div class="alert-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21,15 16,10 5,21" />
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-title">47 photos synced — Asokgre</p>
+                        <p class="alert-meta">Yesterday · Baghmara</p>
+                    </div>
+                </div>
+
+                <div class="alert-item alert-item--info">
+                    <div class="alert-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-title">FGD completed — Mipak Balsigrittim</p>
+                        <p class="alert-meta">2 days ago · 18 participants</p>
+                    </div>
+                </div>
+
+                <div class="alert-item alert-item--drop">
+                    <div class="alert-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-title">Water quality alert — JJM source</p>
+                        <p class="alert-meta">3 days ago · Mipak Balsigrittim</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-------- FOOTER ---------->
+    <footer class="site-footer">
+        <span class="footer-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+            </svg>
+            ArcGIS Survey123
+        </span>
+        <span class="footer-item">IoT Sensors (38)</span>
+        <span class="footer-item">Sentinel-2 / CHIRPS</span>
+        <span class="footer-item">PostGIS · API v2.1</span>
+        <span class="footer-item footer-item--highlight">Last export: Jun 10, 2026</span>
+        <span class="footer-badge">NMHS Compliant</span>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
